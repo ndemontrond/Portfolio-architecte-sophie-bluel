@@ -351,6 +351,11 @@ footer nav ul {
     text-decoration: underline;
 }
 
+#error-message {
+	text-align: center;
+	color: red;
+}
+
 footer nav ul {
     display: flex;
     justify-content: flex-end;

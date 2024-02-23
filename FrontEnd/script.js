@@ -1,4 +1,3 @@
-const galleryContainer = document.getElementById("galleryContainer");
 async function getData(container) {
     try {
         const response = await fetch("http://localhost:5678/api/works");
@@ -12,12 +11,10 @@ async function getData(container) {
             this.classList.add("selected");
             handleFilterClick(option, this); // Pass the clicked element to the event handler function
         }
-
         // Add event listeners to each filter button
         filterElements.forEach((item) => {
             item.addEventListener("click", handleFilterButtonClick);
         });
-
         function handleFilterClick(option, clickedElement) {
             // If the option is "all", return all the data else, filter it
             const filteredData =
@@ -57,17 +54,17 @@ async function getData(container) {
         console.error("An error occurred:", error);
     }
 }
+const galleryContainer = document.getElementById("galleryContainer");
 getData(galleryContainer);
 
 if (window.location.href.endsWith("login.html")) {
     document.getElementById("loginForm").addEventListener("submit", login);
 }
-async function login(event) {
-    event.preventDefault(); // No reloading of the page because of the form submission
+async function login(e) {
+    e.preventDefault(); // No reloading of the page because of the form submission
     // Get the user's email and password from form input fields.
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
-    // Create a request body object with email and password.
     const requestBody = { email, password };
     try {
         // Send a POST request to the server for user authentication.
@@ -79,7 +76,6 @@ async function login(event) {
             },
             body: JSON.stringify(requestBody),
         });
-
         if (!response.ok) {
             if (response.status === 401) {
                 throw new Error(
@@ -100,14 +96,9 @@ async function login(event) {
         window.location.href = "index.html"; // Redirect the user to the "index.html" page upon successful login.
     } catch (error) {
         console.error("Login failed:", error.message);
-        displayErrorMessage(error.message);
+        const errorMessageElement = document.getElementById("error-message");
+        errorMessageElement.textContent = error.message;
     }
-}
-function displayErrorMessage(message) {
-    const errorMessageElement = document.getElementById("error-message");
-    errorMessageElement.textContent = message;
-    errorMessageElement.style.color = "red";
-    errorMessageElement.style.textAlign = "center";
 }
 
 // Functionality once logged in //

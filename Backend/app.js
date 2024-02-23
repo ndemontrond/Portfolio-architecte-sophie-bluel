@@ -14,6 +14,7 @@ app.use(helmet({
       crossOriginResourcePolicy: false,
     }));
 app.use('/images', express.static(path.join(__dirname, 'images')))
+app.use(express.static(path.join(__dirname, '../frontend'))); // Serve static files from the 'frontend' directory 
 
 const db = require("./models");
 const userRoutes = require('./routes/user.routes');
@@ -24,4 +25,11 @@ app.use('/api/users', userRoutes);
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/works', worksRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
+
+// Serve 'index.html' for all other routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend', 'index.html'));
+});
+
+
 module.exports = app;

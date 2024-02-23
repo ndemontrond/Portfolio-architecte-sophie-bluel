@@ -1,11 +1,22 @@
-async function getData(container) {
+const galleryContainer = document.getElementById("galleryContainer");
+let data = [];
+async function fetchDataAndInitialize() {
     try {
         const response = await fetch("http://localhost:5678/api/works");
-        const data = await response.json(); // Transform the data into JSON
+        data = await response.json(); // Transform the data into JSON
+        getData(galleryContainer, data); // Pass data to the getData function
+    } catch (error) {
+        console.error("An error occurred:", error);
+    }
+}
+fetchDataAndInitialize(); // Fetch data and initialize the gallery
+
+async function getData(container, data) {
+    try {
         const filterElements = document.querySelectorAll(".filter"); // Get all the filter buttons
         function handleFilterButtonClick() {
-            filterElements.forEach((element) => {
-                element.classList.remove("selected");
+            filterElements.forEach((e) => {
+                e.classList.remove("selected");
             });
             const option = this.id; // Get the selected option from the button id
             this.classList.add("selected");
@@ -15,7 +26,7 @@ async function getData(container) {
         filterElements.forEach((item) => {
             item.addEventListener("click", handleFilterButtonClick);
         });
-        function handleFilterClick(option, clickedElement) {
+        function handleFilterClick(option) {
             // If the option is "all", return all the data else, filter it
             const filteredData =
                 option === "all"
@@ -28,7 +39,6 @@ async function getData(container) {
                           } else if (option === "hotelsRestaurants") {
                               return item.category.id === 3;
                           }
-                          return false;
                       });
             container.innerHTML = ""; // Clear previous content
             // Add filtered data to the container
@@ -54,8 +64,6 @@ async function getData(container) {
         console.error("An error occurred:", error);
     }
 }
-const galleryContainer = document.getElementById("galleryContainer");
-getData(galleryContainer);
 
 // Functionality once logged in //
 
@@ -85,10 +93,9 @@ if (userId && token) {
         return listener;
     }
 
-    function toggleModal() {
-        let modal = document.getElementById("myModal");
-        console.log(typeof modal);
-        if (modal !== null && modal !== undefined) {
+    const toggleModal = () => {
+        const modal = document.getElementById("myModal");
+        if (modal) {
             closeModal();
         } else {
             const images = Array.from(
@@ -101,21 +108,17 @@ if (userId && token) {
             );
             createModal(images);
         }
-    }
-
-    addGlobalEventListener("click", ".modalTrigger, .modalTrigger *", (e) => {
+    };
+    const handleModalTriggerClick = (e) => {
         e.preventDefault();
-        toggleModal(); // Call the function to toggle modal when clicking on modalTrigger or children
-    });
-
-    addGlobalEventListener("click", ".previousTrigger", (e) => {
+        toggleModal();
+    };
+    const handlePreviousTriggerClick = (e) => {
         e.preventDefault();
-        console.log("previous");
         closeModal();
         toggleModal();
-    });
-
-    function closeModal() {
+    };
+    const closeModal = () => {
         const modal = document.getElementById("myModal");
         if (modal) {
             modal.remove();
@@ -123,7 +126,17 @@ if (userId && token) {
         if (myModalListener) {
             document.removeEventListener("click", myModalListener);
         }
-    }
+    };
+    addGlobalEventListener(
+        "click",
+        ".modalTrigger, .modalTrigger *",
+        handleModalTriggerClick
+    );
+    addGlobalEventListener(
+        "click",
+        ".previousTrigger",
+        handlePreviousTriggerClick
+    );
 
     function createModal(images) {
         const modalContent = `
@@ -141,8 +154,8 @@ if (userId && token) {
             modal.innerHTML = modalContent;
             document.body.appendChild(modal);
         }
-
         myModalListener = addGlobalEventListener("click", "#myModal", (e) => {
+            // Checking if the clicked element is the modal itself, not any of its children
             if (e.target.id === "myModal") {
                 closeModal();
             }
@@ -153,7 +166,7 @@ if (userId && token) {
         );
 
         // Call getData and populate the container inside its then block
-        getData(galleryContainerModal)
+        getData(galleryContainerModal, data)
             .then((result) => {
                 console.log("Data fetched and processed:", result);
                 images.forEach((image) => {
@@ -193,8 +206,8 @@ if (userId && token) {
                 document.getElementById("addPhotosValidate");
             addPhotosValidateButton.addEventListener("click", addWork);
 
-            imageInput.addEventListener("change", function (event) {
-                const file = event.target.files[0];
+            imageInput.addEventListener("change", function (e) {
+                const file = e.target.files[0];
 
                 if (file) {
                     const reader = new FileReader();
@@ -301,25 +314,31 @@ if (userId && token) {
             });
         }
     }
-    function deleteWork(className) {
-        const classNumber = className.replace("galleryCard", ""); // Extracting the numeral part from the class name
-        fetch(`http://localhost:5678/api/works/${classNumber}`, {
-            // fetch returns a Promise
-            method: "DELETE",
-            headers: {
-                Accept: "application/json",
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-        })
-            .then(() => {
-                //.then() and .catch() functions are part of the Promise chain
-                const figures = document.getElementsByClassName(className); // Get all elements with the given class
-                const figureArray = Array.from(figures); // Convert the NodeList to an array
-                figureArray.forEach((e) => e.remove()); // Remove all elements with the given class
-            })
-            .catch((error) => {
-                console.error("Fetch error:", error);
-            });
+    async function deleteWork(className) {
+        try {
+            const classNumber = className.replace("galleryCard", ""); // Extracting the numeral part from the class name
+            const response = await fetch(
+                `http://localhost:5678/api/works/${classNumber}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Accept: "application/json",
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to delete work");
+            }
+            let figure = document.querySelector(`.${className}`);
+            while (figure) {
+                figure.remove();
+                figure = document.querySelector(`.${className}`);
+            }
+        } catch (error) {
+            console.error("Error deleting work:", error);
+        }
     }
 }

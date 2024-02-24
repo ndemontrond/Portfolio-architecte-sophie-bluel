@@ -128,16 +128,23 @@ table {
     border-spacing: 0;
 }
 /** end reset css**/
+html {
+    height: calc(100vh);
+}
 body {
     max-width: 1140px;
     margin: auto;
     font-family: "Work Sans";
     font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 header {
     display: flex;
     justify-content: space-between;
     margin: 50px 0;
+    flex-wrap: wrap;
 }
 section {
     margin: 50px 0;
@@ -222,18 +229,20 @@ header a.current-page {
     align-items: center;
     gap: 20px;
 }
-/* imported */
+
 .filterContainer {
-    width: 585px;
-    height: 37px;
+    max-width: 585px;
     margin: auto;
     margin-bottom: 1em;
     font-weight: 700;
     font-size: 30px;
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 .filter {
+    height: 37px;
     background-color: none;
     padding: 0;
     color: #1d6154;
@@ -254,7 +263,6 @@ header a.current-page {
     color: white;
 }
 
-/*end*/
 .gallery {
     width: 100%;
     display: grid;
@@ -266,39 +274,55 @@ header a.current-page {
 .gallery img {
     width: 100%;
 }
-#contact {
+#contact,
+#login,
+#myModal {
     width: 50%;
     margin: auto;
 }
-#contact > * {
+#contact > *,
+#login > *,
+#myModal > * {
+    width: 100%;
     text-align: center;
 }
-#contact h2 {
+#contact h2,
+#login h2,
+#myModal h2 {
     margin-bottom: 20px;
 }
-#contact form {
+#contact form,
+#login form,
+#myModal form {
     text-align: left;
     margin-top: 30px;
     display: flex;
     flex-direction: column;
 }
 
-#contact input {
+#contact input,
+#login input,
+#myModal input,
+#myModal select {
     height: 50px;
     font-size: 1.2em;
     border: none;
     box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
 }
-#contact label {
+#contact label,
+#login label,
+#myModal label {
     margin: 2em 0 1em 0;
 }
-#contact textarea {
+#contact textarea,
+#login textarea,
+#myModal textarea {
     border: none;
     box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
 }
 
 input[type="submit"] {
-    font-family: "Syne";
+    font-family: Syne;
     font-weight: 700;
     color: white;
     background-color: #1d6154;
@@ -308,54 +332,19 @@ input[type="submit"] {
     border-radius: 60px;
 }
 
-footer nav ul {
-    display: flex;
-    justify-content: flex-end;
-    margin: 2em;
-}
-
-/* imported old file */
-
-#login {
-    width: 50%;
-    margin: auto;
-}
-#login > * {
-    text-align: center;
-}
-#login h2 {
-    margin-bottom: 20px;
-}
-#login form {
-    text-align: left;
-    margin-top: 30px;
-    display: flex;
-    flex-direction: column;
-}
-
-#login input {
-    height: 50px;
-    font-size: 1.2em;
-    border: none;
-    box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
-}
-#login label {
-    margin: 2em 0 1em 0;
-}
-#login textarea {
-    border: none;
-    box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
-}
 #login a {
     text-align: center;
     text-decoration: underline;
 }
 
 #error-message {
-	text-align: center;
-	color: red;
+    text-align: center;
+    color: red;
 }
 
+footer {
+    height: 60px;
+}
 footer nav ul {
     display: flex;
     justify-content: flex-end;
@@ -376,9 +365,9 @@ main {
     left: 0;
     top: 0;
     width: 100%;
-    display: flex; /* Use flexbox */
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
+    display: flex;
+    justify-content: center;
+    align-items: center;
     gap: 100px;
 }
 
@@ -403,61 +392,44 @@ main {
     background-color: rgba(0, 0, 0, 0.7);
 }
 
+#myModal figure {
+    position: relative;
+}
+
 .modalContent {
     background-color: white;
-    width: 630px;
-    height: 688px;
+    max-width: 630px;
+    max-height: 688px;
+    width: 100%;
+    height: 100%;
     position: absolute;
     top: 50%; /* Center vertically */
     left: 50%; /* Center horizontally */
     transform: translate(-50%, -50%); /* Center both ways */
     padding: 20px;
     text-align: center;
-
     border-radius: 10px;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 /* Close button */
 .close {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 20px;
+    right: 25px;
     font-size: 20px;
     cursor: pointer;
 }
 
 .previous {
     position: absolute;
-    top: 10px;
-    right: 650px;
+    top: 20px;
+    right: 630px;
     font-size: 20px;
     cursor: pointer;
-}
-
-/* Add this CSS to control image resizing and layout */
-.galleryContainer {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-}
-
-/* .galleryImageContainer, #galleryContainerModal {
-    display: grid;
-    margin-bottom: 20px;
-    margin-right: 10px;
-    text-align: center;
-} */
-
-.galleryImageContainer img {
-    max-width: 100%;
-    height: auto;
-}
-
-/* Define a custom emphasis effect for the selected element */
-.gallery figure.selected {
-    border: 3px solid #ff5722; /* Change border color when selected */
-    box-shadow: 10px 10px 8px blue; /* Add a subtle shadow */
 }
 
 .modalContent h2 {
@@ -466,7 +438,8 @@ main {
 }
 
 .modalContent .gallery {
-    height: 400px;
+    max-height: 400px;
+    height: 100%;
     display: grid;
     width: auto;
     box-sizing: border-box;
@@ -481,56 +454,98 @@ main {
 }
 
 .line {
-    width: 420px;
+    max-width: 420px;
+    width: 100%;
     height: 1px;
     background: #b3b3b3;
     margin: 50px auto;
 }
 
-#addPhotosButton {
+#addPhotosButton,
+#addPhotosValidate {
     border-radius: 60px;
     background: #1d6154;
     width: 237px;
-    height: 36px;
     color: #fff;
     border: none;
-    padding: none;
-}
-
-#addContentContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 
 .imageInputContainer {
-    width: 420px;
-    height: 169px;
+    max-width: 420px;
+    max-height: 169px;
+    width: 100%;
+    height: 100%;
     border-radius: 3px;
     background: #e8f1f6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
 }
-
-label i {
-    font-size: 76px;
-}
-
-/* replace with an id */
-label input {
+#addImageButton {
+    width: 173px;
+    height: 36px;
     border-radius: 50px;
     background: #cbd6dc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #306685;
+}
+#imageInputInfo {
+    font-size: 10px;
+}
+#imageInput {
+    display: none;
 }
 
-figure {
-    position: relative;
+#iconElement {
+    font-size: 76px;
+    color: #b9c5cc;
 }
 
 i.fa-trash-can {
     position: absolute;
-    top: 6px; /* Adjust the top and right values as needed */
+    top: 6px;
     right: 6px;
     color: #ffffff;
     background-color: black;
     z-index: 1;
     padding: 3px 4px;
     border-radius: 2px;
+}
+
+#displayImage {
+    max-width: 100%;
+    max-width: 100%;
+    height: auto;
+    width: auto;
+    object-fit: contain;
+    overflow: hidden;
+}
+#titleInput,
+#categoryInput {
+    max-width: 420px;
+    width: 100%;
+}
+
+@media (max-width: 1200px) {
+    .filter {
+        flex: 1 0 33.33%;
+        max-width: 33.33%;
+    }
+}
+
+@media (max-width: 800px) {
+    .filter {
+        flex: 1 0 50%;
+        max-width: 50%;
+    }
+}
+
+@media (max-width: 600px) {
+    .filter {
+        flex: 1 0 100%;
+        max-width: 100%;
+    }
 }

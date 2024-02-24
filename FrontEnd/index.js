@@ -71,7 +71,6 @@ const userId = localStorage.getItem("userId");
 const token = localStorage.getItem("token");
 if (userId && token) {
     // editioMode part //
-    let galleryContainerModal;
     const editionMode = document.createElement("div");
     editionMode.id = "editionMode";
     editionMode.classList.add("modalTrigger");
@@ -138,14 +137,14 @@ if (userId && token) {
         ".previousTrigger",
         handlePreviousTriggerClick
     );
-    function createModal(images) {
+    function createModal() {
         const modalContent = `
             <div class="modalContent">
                 <h2>Galerie photo</h2>
                 <div id="galleryContainerModal" class="gallery"></div>
                 <div class="line"></div>
-                <button id="addPhotosButton">Ajouter une image</button>
-                <span class="close modalTrigger">&times;</span>
+                <input type="submit" id="addPhotosButton" value="Ajouter une photo"></button>
+                <i class="fa-solid fa-xmark close modalTrigger"></i>
             </div>`;
         let modal = document.getElementById("myModal");
         if (!modal) {
@@ -163,7 +162,18 @@ if (userId && token) {
         const galleryContainerModal = document.getElementById(
             "galleryContainerModal"
         );
-        galleryContainerModal.innerHTML = galleryContainer.innerHTML; // Could lead to conflict with id
+        if (
+            galleryContainer.innerHTML.length >=
+            galleryContainerModal.innerHTML.length
+        ) {
+            galleryContainerModal.innerHTML = galleryContainer.innerHTML; // Could lead to conflict with id
+        }
+
+        console.log(galleryContainer.innerHTML.length);
+        console.log(galleryContainerModal.innerHTML.length);
+        console.log(galleryContainer.innerHTML.length);
+        console.log(galleryContainerModal.innerHTML.length);
+
         const figures = Array.from(
             galleryContainerModal.getElementsByTagName("figure")
         );
@@ -181,18 +191,26 @@ if (userId && token) {
             const modalAddContent = `
             <div class="modalContent" id="addContentContainer">
                 <h2>Ajout photo</h2>
-                <label class="imageInputContainer">
+                <label class="imageInputContainer" for="imageInput">
                     <i class="fa-regular fa-image file-icon" id="iconElement"></i>
-                    <input type="file" id="imageInput" accept="image/*" />
+                    <span id="addImageButton">+ Ajouter photo</span>
+                    <span id="imageInputInfo">jpg, png : 4mo max</span>
+                    <input type="file" accept="image/*" id="imageInput" />
                     <img src="" id="displayImage" style="display: none;">
                 </label>
                 <label for="titleInput">Titre</label>
                 <input type="text" id="titleInput" />
                 <label for="categoryInput">Catégorie</label>
-                <input type="number" id="categoryInput" />
+                <select id="categoryInput">
+                    <option value="" disabled selected></option>
+                    <option value="1">Objets</option>
+                    <option value="2">Appartements</option>
+                    <option value="3">Hôtels et restaurants</option>
+                </select>
+                <div class="line"></div>
                 <input type="submit" id="addPhotosValidate" value="Valider">
-                <span class="previous previousTrigger">&laquo;</span>
-                <span class="close modalTrigger">&times;</span>
+                <i class="fa-solid fa-arrow-left previous previousTrigger"></i>
+                <i class="fa-solid fa-xmark close modalTrigger"></i>
             </div>`;
             modal.innerHTML = modalAddContent;
             const imageInput = document.getElementById("imageInput");
@@ -219,12 +237,8 @@ if (userId && token) {
                     );
                     iconElement.style.display = "none";
                     imageInput.style.display = "none";
-                    displayImage.style.maxWidth = "100%";
-                    displayImage.style.maxHeight = "100%";
-                    displayImage.style.width = "auto";
-                    displayImage.style.height = "auto";
-                    displayImage.style.objectFit = "contain";
-                    displayImage.parentElement.style.textAlign = "center";
+                    imageInputInfo.style.display = "none";
+                    addImageButton.style.display = "none";
                 }
             });
             function addWork(galleryContainerModal) {
@@ -255,7 +269,6 @@ if (userId && token) {
                     body: dataToAdd,
                 })
                     .then((response) => {
-                        console.log("Raw response body:", response);
                         return response.json();
                     })
                     .then((response) => {
@@ -273,7 +286,7 @@ if (userId && token) {
 
                             const figcaptionElement =
                                 document.createElement("figcaption");
-                            figcaptionElement.textContent = title; // Set the text/content of the figcaption
+                            figcaptionElement.textContent = title;
 
                             figureElement.appendChild(newImage);
                             figureElement.appendChild(figcaptionElement);

@@ -1,10 +1,12 @@
 const galleryContainer = document.getElementById("galleryContainer");
 let data = [];
+let allGalleryData = [];
 async function fetchDataAndInitialize() {
     try {
         const response = await fetch("http://localhost:5678/api/works");
         data = await response.json(); // Transform the data into JSON
         getData(galleryContainer, data); // Pass data to the getData function
+        allGalleryData = await getData(galleryContainer, data); // Assign the value
     } catch (error) {
         console.error("An error occurred:", error);
     }
@@ -13,53 +15,57 @@ fetchDataAndInitialize(); // Fetch data and initialize the gallery
 
 async function getData(container, data) {
     try {
-        const filterElements = document.querySelectorAll(".filter"); // Get all the filter buttons
+        const filterElements = document.querySelectorAll(".filter");
+
         function handleFilterButtonClick() {
             filterElements.forEach((e) => {
                 e.classList.remove("selected");
             });
-            const option = this.id; // Get the selected option from the button id
+            const option = this.id;
             this.classList.add("selected");
-            handleFilterClick(option, this); // Pass the clicked element to the event handler function
+            populateGallery(filterData(option));
         }
-        // Add event listeners to each filter button
-        filterElements.forEach((item) => {
-            item.addEventListener("click", handleFilterButtonClick);
-        });
-        function handleFilterClick(option) {
-            // If the option is "all", return all the data else, filter it
-            const filteredData =
-                option === "all"
-                    ? data
-                    : data.filter((item) => {
-                          if (option === "objects") {
+
+        function filterData(option) {
+            return option === "all"
+                ? data
+                : data.filter((item) => {
+                      switch (option) {
+                          case "objects":
                               return item.category.id === 1;
-                          } else if (option === "appartments") {
+                          case "appartments":
                               return item.category.id === 2;
-                          } else if (option === "hotelsRestaurants") {
+                          case "hotelsRestaurants":
                               return item.category.id === 3;
-                          }
-                      });
-            container.innerHTML = ""; // Clear previous content
-            // Add filtered data to the container
+                          default:
+                              return false;
+                      }
+                  });
+        }
+
+        function populateGallery(filteredData) {
+            container.innerHTML = "";
             filteredData.forEach((item) => {
                 const { id, title, imageUrl } = item;
                 const figure = document.createElement("figure");
-                figure.innerHTML =
-                    '<img src="' +
-                    imageUrl +
-                    '" alt="' +
-                    title +
-                    '">' +
-                    "<figcaption>" +
-                    title +
-                    "</figcaption>";
+                figure.innerHTML = `<img src="${imageUrl}" alt="${title}"><figcaption>${title}</figcaption>`;
                 figure.classList.add("galleryCard" + id);
+                figure.id = container.id + id;
                 container.appendChild(figure);
             });
         }
-        handleFilterButtonClick.call(filterElements[0]); // Call the event handler function for the first filter button
-        return;
+
+        filterElements.forEach((item) => {
+            item.addEventListener("click", handleFilterButtonClick);
+        });
+
+        const allGalleryData = filterData("all");
+        populateGallery(allGalleryData);
+        // Find the "all" filter button
+        const allFilterButton = document.querySelector(".filter#all");
+        // Trigger a click event on the "all" filter button
+        allFilterButton.click();
+        return { populateGallery, allGalleryData };
     } catch (error) {
         console.error("An error occurred:", error);
     }
@@ -92,10 +98,10 @@ if (userId && token) {
         // Return the listener function to store it for removal
         return listener;
     }
-
-    const toggleModal = () => {
+    //forceOpen is used to reload the modal without closing it or reloading the page
+    const toggleModal = (forceOpen = false) => {
         const modal = document.getElementById("myModal");
-        if (modal) {
+        if (modal && !forceOpen) {
             closeModal();
         } else {
             const images = Array.from(
@@ -159,20 +165,12 @@ if (userId && token) {
                 closeModal();
             }
         });
+
         const galleryContainerModal = document.getElementById(
             "galleryContainerModal"
         );
-        if (
-            galleryContainer.innerHTML.length >=
-            galleryContainerModal.innerHTML.length
-        ) {
-            galleryContainerModal.innerHTML = galleryContainer.innerHTML; // Could lead to conflict with id
-        }
 
-        console.log(galleryContainer.innerHTML.length);
-        console.log(galleryContainerModal.innerHTML.length);
-        console.log(galleryContainer.innerHTML.length);
-        console.log(galleryContainerModal.innerHTML.length);
+        getData(galleryContainerModal, data);
 
         const figures = Array.from(
             galleryContainerModal.getElementsByTagName("figure")
@@ -182,7 +180,7 @@ if (userId && token) {
             deleteIcon.className = "fa-solid fa-trash-can";
             figure.appendChild(deleteIcon);
             deleteIcon.addEventListener("click", function () {
-                deleteWork(figure.classList[0]);
+                deleteWork(figure.classList[0], figure.id);
             });
         });
 
@@ -241,7 +239,7 @@ if (userId && token) {
                     addImageButton.style.display = "none";
                 }
             });
-            function addWork(galleryContainerModal) {
+            function addWork() {
                 const dataToAdd = new FormData();
                 const titleInput = document.getElementById("titleInput");
                 const categoryInput = document.getElementById("categoryInput");
@@ -291,6 +289,7 @@ if (userId && token) {
                             figureElement.appendChild(newImage);
                             figureElement.appendChild(figcaptionElement);
                             galleryContainer.appendChild(figureElement);
+                            fetchDataAndInitialize();
                         } else {
                             console.error(
                                 "Response does not contain imageUrl:",
@@ -323,10 +322,11 @@ if (userId && token) {
                 throw new Error("Failed to delete work");
             }
             let figure = document.querySelector(`.${className}`);
-            while (figure) {
-                figure.remove();
-                figure = document.querySelector(`.${className}`);
-            }
+            figure.remove();
+
+            fetchDataAndInitialize().then(() => {
+                toggleModal(true);
+            });
         } catch (error) {
             console.error("Error deleting work:", error);
         }

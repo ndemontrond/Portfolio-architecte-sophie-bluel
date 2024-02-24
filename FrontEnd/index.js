@@ -71,6 +71,7 @@ const userId = localStorage.getItem("userId");
 const token = localStorage.getItem("token");
 if (userId && token) {
     // editioMode part //
+    let galleryContainerModal;
     const editionMode = document.createElement("div");
     editionMode.id = "editionMode";
     editionMode.classList.add("modalTrigger");
@@ -137,7 +138,6 @@ if (userId && token) {
         ".previousTrigger",
         handlePreviousTriggerClick
     );
-
     function createModal(images) {
         const modalContent = `
             <div class="modalContent">
@@ -160,25 +160,21 @@ if (userId && token) {
                 closeModal();
             }
         });
-
-        const galleryContainerModal = modal.querySelector(
-            "#galleryContainerModal"
+        const galleryContainerModal = document.getElementById(
+            "galleryContainerModal"
         );
-
-        // Call getData and populate the container inside its then block
-        getData(galleryContainerModal, data)
-            .then((result) => {
-                console.log("Data fetched and processed:", result);
-                images.forEach((image) => {
-                    console.log(image.id);
-                    console.log(image);
-                });
-
-                createImageContainer();
-            })
-            .catch((error) => {
-                console.error("An error occurred:", error);
+        galleryContainerModal.innerHTML = galleryContainer.innerHTML; // Could lead to conflict with id
+        const figures = Array.from(
+            galleryContainerModal.getElementsByTagName("figure")
+        );
+        figures.forEach((figure) => {
+            const deleteIcon = document.createElement("i");
+            deleteIcon.className = "fa-solid fa-trash-can";
+            figure.appendChild(deleteIcon);
+            deleteIcon.addEventListener("click", function () {
+                deleteWork(figure.classList[0]);
             });
+        });
 
         const addPhotosButton = modal.querySelector("#addPhotosButton");
         addPhotosButton.addEventListener("click", () => {
@@ -204,7 +200,9 @@ if (userId && token) {
 
             const addPhotosValidateButton =
                 document.getElementById("addPhotosValidate");
-            addPhotosValidateButton.addEventListener("click", addWork);
+            addPhotosValidateButton.addEventListener("click", () => {
+                addWork(galleryContainerModal);
+            });
 
             imageInput.addEventListener("change", function (e) {
                 const file = e.target.files[0];
@@ -229,7 +227,7 @@ if (userId && token) {
                     displayImage.parentElement.style.textAlign = "center";
                 }
             });
-            function addWork() {
+            function addWork(galleryContainerModal) {
                 const dataToAdd = new FormData();
                 const titleInput = document.getElementById("titleInput");
                 const categoryInput = document.getElementById("categoryInput");
@@ -280,8 +278,6 @@ if (userId && token) {
                             figureElement.appendChild(newImage);
                             figureElement.appendChild(figcaptionElement);
                             galleryContainer.appendChild(figureElement);
-
-                            console.log(`${titleInput.value} added`);
                         } else {
                             console.error(
                                 "Response does not contain imageUrl:",
@@ -295,24 +291,6 @@ if (userId && token) {
             }
         });
         modal.style.display = "block";
-    }
-    function createImageContainer() {
-        const galleryContainerModal = document.getElementById(
-            "galleryContainerModal"
-        );
-        if (galleryContainerModal) {
-            const figures = Array.from(
-                galleryContainerModal.getElementsByTagName("figure")
-            );
-            figures.forEach((figure) => {
-                const deleteIcon = document.createElement("i");
-                deleteIcon.className = "fa-solid fa-trash-can";
-                figure.appendChild(deleteIcon);
-                deleteIcon.addEventListener("click", function () {
-                    deleteWork(figure.classList[0]);
-                });
-            });
-        }
     }
     async function deleteWork(className) {
         try {
@@ -328,7 +306,6 @@ if (userId && token) {
                     },
                 }
             );
-
             if (!response.ok) {
                 throw new Error("Failed to delete work");
             }

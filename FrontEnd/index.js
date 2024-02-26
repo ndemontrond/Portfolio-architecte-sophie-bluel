@@ -116,11 +116,11 @@ if (userId && token) {
         }
     };
     const handleModalTriggerClick = (e) => {
-        e.preventDefault();
+        //e.preventDefault();
         toggleModal();
     };
     const handlePreviousTriggerClick = (e) => {
-        e.preventDefault();
+        //e.preventDefault();
         closeModal();
         toggleModal();
     };
@@ -220,10 +220,24 @@ if (userId && token) {
                 addWork(galleryContainerModal);
             });
 
+            //Check if the form is complete. If this is the case, add a class for a visual clue
+            const updateButtonColor = () => {
+                if (
+                    categoryInput.value.trim() !== "" &&
+                    titleInput.value.trim() !== "" &&
+                    imageInput.files.length > 0
+                ) {
+                    addPhotosValidateButton.classList.add("inputTyped");
+                } else {
+                    addPhotosValidateButton.classList.remove("inputTyped");
+                }
+            };
+
             imageInput.addEventListener("change", function (e) {
                 const file = e.target.files[0];
 
                 if (file) {
+                    updateButtonColor();
                     const reader = new FileReader();
                     reader.onload = function (e) {
                         displayImage.src = e.target.result;
@@ -239,6 +253,10 @@ if (userId && token) {
                     addImageButton.style.display = "none";
                 }
             });
+
+            titleInput.addEventListener("input", updateButtonColor);
+            categoryInput.addEventListener("input", updateButtonColor);
+
             function addWork() {
                 const dataToAdd = new FormData();
                 const titleInput = document.getElementById("titleInput");
@@ -302,7 +320,7 @@ if (userId && token) {
                     });
             }
         });
-        modal.style.display = "block";
+        //modal.style.display = "block";
     }
     async function deleteWork(className) {
         try {

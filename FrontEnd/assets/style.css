@@ -462,12 +462,17 @@ main {
 }
 
 #addPhotosButton,
-#addPhotosValidate {
+#addPhotosValidate.inputTyped {
     border-radius: 60px;
     background: #1d6154;
     width: 237px;
     color: #fff;
     border: none;
+}
+
+#addPhotosValidate {
+    background: #a7a7a7;
+    width: 237px;
 }
 
 .imageInputContainer {
